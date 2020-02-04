@@ -4,11 +4,25 @@ class UsersController < ApplicationController
     @user = User.new
   end
   
+  #def create
+  #  user = User.create(user_params)
+  #  return redirect_to new_user_path unless user.save
+  #  session[:user_id] = user.id
+  #  redirect_to welcome_path
+  #end
+  
   def create
-    user = User.create(user_params)
-    return redirect_to new_user_path unless user.save
+    user = User.find_by(name: params[:user][:name])
+
+    user = user.try(:authenticate, params[:user][:password])
+
+    return redirect_to(controller: 'sessions', action: 'new') unless user
+
     session[:user_id] = user.id
-    redirect_to welcome_path
+
+    @user = user
+
+    redirect_to controller: 'welcome', action: 'home'
   end
   
   private
